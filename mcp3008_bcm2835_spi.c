@@ -19,7 +19,7 @@ if (!bcm2835_init()){ return 1; }
     static int x; 
     for(x=0; x<8; x++){
     printf("Read %2.1f volts on mcp3008 channel %d\n", (adc_to_vref(readadc(x))), x); }
-	return 0; }
+return 0; }
     
     
     

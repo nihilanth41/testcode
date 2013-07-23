@@ -6,9 +6,9 @@ int readadc(int adc_channel);
 
 
 int main(int argc, char **argv){
-	//bcm2835_set_debug(1);
-	if (!bcm2835_init()){ return 1; }
-  	bcm2835_spi_begin();
+//bcm2835_set_debug(1);
+if (!bcm2835_init()){ return 1; }
+    bcm2835_spi_begin();
     bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST); //default
     bcm2835_spi_setDataMode(BCM2835_SPI_MODE0); //default
     bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_2048); //122khz ~(250mhz/2048)

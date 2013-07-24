@@ -1,11 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h> 
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <math.h>
 #include <bcm2835.h>
 
 #define PIN RPI_GPIO_P1_11
 
 /* prototype(s) */
 int readadc(int adc_channel);
+long long int gettimer(void);
+
 
 #define PWM_FREQ 24000U //24khz
 
@@ -24,19 +32,19 @@ if (!bcm2835_init()){ return 1; }
 static int adc;
 static int hi, low, step;
 double pwm_period = ((1/(PWM_FREQ))*1000000); //period in microseconds
-
+// Set the pin to be an output
+bcm2835_gpio_fsel(PIN, BCM2835_GPIO_FSEL_OUTP);
+bcm2835_gpio_write(PIN, HIGH);
 while(1){ 
-
-
-  
-
-
-   // printf("Read %2.1f volts on mcp3008 channel %d\n", (adc_to_vref(readadc(x))), x); }
+bcm2835_st_delay(0, pwm_period);
+bcm2835_gpio_write(PIN, LOW);
+bcm2835_st_delay(0, pwm_period);
+bcm2835_gpio_write(PIN, HIGH); }
+// printf("Read %2.1f volts on mcp3008 channel %d\n", (adc_to_vref(readadc(x))), x); }
 return 0; }
 
 
-// Set the pin to be an output
-bcm2835_gpio_fsel(PIN, BCM2835_GPIO_FSEL_OUTP);
+
 
 double adc_to_vref(int adcout){
 double adc_bits = 1024;
@@ -51,6 +59,52 @@ uint8_t buf[] = { 1, ((8+adc_channel)<<4), 0 };
 bcm2835_spi_transfern(buf, sizeof(buf));
 int adcout = (((buf[1]&3) << 8) + buf[2]);
 return adcout; }
+
+#define ST_BASE (0x20003000)
+#define TIMER_OFFSET (4)
+
+//must run as root
+long long int gettimer(void) {
+long long int t, prev, *timer; // 64 bit timer
+    int fd;
+    void *st_base; // byte ptr to simplify offset math
+ 
+    // get access to system core memory
+    if (-1 == (fd = open("/dev/mem", O_RDONLY))) {
+        fprintf(stderr, "open() failed.\n");
+        return 255;
+    }
+ 
+    // map a specific page into process's address space
+    if (MAP_FAILED == (st_base = mmap(NULL, 4096,
+                        PROT_READ, MAP_SHARED, fd, ST_BASE))) {
+        fprintf(stderr, "mmap() failed.\n");
+        return 254;
+    }
+ 
+    // set up pointer, based on mapped page
+    timer = (long long int *)((char *)st_base + TIMER_OFFSET);
+ 
+    // read initial timer
+    t = *timer;
+    // and wait
+    //sleep(1);
+ 
+    //while (1==1) { // forever
+        // read new timer
+      // t = *timer;
+        // print difference (and flush output)
+       // printf("Timer diff = %lld    \r", t - prev);
+       // fflush(stdout);
+        // save current timer
+        //prev = t;
+        // and wait
+        //sleep(1);
+    //}
+    // will never get here
+    return t;
+}
+
 
 
 

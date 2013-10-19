@@ -1,3 +1,6 @@
+/* Generate lookup table for ADC values. 
+This exmaple uses AREF of 3.5 volts and a 12-bit adc */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -9,7 +12,7 @@ int main(void) {
 #define R2 680
 #define VCC 3.56 //volts
 #define AREF VCC //use VCC as ADC Reference voltage
-#define ADC_RES 4095 //12 bit adc with oversampling/decimation
+#define ADC_RES 4095 //2^12-1, 12 bit adc with oversampling/decimation 
 double resistor_divider = (((R1)+(R2))/(R2)); //10680/680
 double mvpd = ((AREF)/(ADC_RES)); 
 int array_size = 4096;
